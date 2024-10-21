@@ -15,6 +15,10 @@ import {
   Menu,
   MenuItem,
   Stack,
+  DialogTitle,
+  Dialog,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
 import { useParams } from "react-router-dom";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
@@ -31,6 +35,9 @@ const BlogDetail = () => {
   const [comments, setComments] = useState([]);
   const [likes, setLikes] = useState(0); // State to track number of likes
   const [liked, setLiked] = useState(false);
+
+  const [open1, setOpen1] = useState(false);
+  const [editedComment, setEditedComment] = useState(comment.text);
 
   const [anchorEl, setAnchorEl] = useState(null);
   const [currentComment, setCurrentComment] = useState(null);
@@ -125,8 +132,40 @@ const BlogDetail = () => {
     setAnchorEl(null);
   };
 
-  const handleEditComment = () => {
-    // Handle edit comment logic
+  const handleEditComment = async (comment) => {
+    const updatedCommentContent = comment.text; // The edited comment text from your dialog
+
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_BASE_URL}/comments/${comment?._id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          body: JSON.stringify({ content: updatedCommentContent }), // Send the updated content
+        }
+      );
+
+      if (response.ok) {
+        const updatedComment = await response.json();
+        setComments((prevComments) =>
+          prevComments.map(
+            (c) => (c._id === comment._id ? updatedComment : c) // Replace the old comment with the updated one
+          )
+        );
+        toast.success("Comment Updated!");
+        setEditedComment("");
+      } else {
+        const errorResponse = await response.json();
+        console.error("Error updating comment:", errorResponse.message);
+        toast.error("Failed to update comment: " + errorResponse.message);
+      }
+    } catch (error) {
+      console.error("Error updating comment:", error);
+      toast.error("An error occurred while updating the comment.");
+    }
     handleCloseMenu();
   };
 
@@ -143,18 +182,41 @@ const BlogDetail = () => {
         }
       );
 
-      const fullresponse = response.json();
+      const fullresponse = await response.json();
+      // console.log("FULL RESPONSE", fullresponse);
 
-      if (fullresponse?.ok) {
-        // setComments(comments.filter((c) => c._id !== currentComment._id));
+      if (fullresponse?.ok || response.ok) {
         toast.success("Comment Deleted!");
-      } else {
-        console.error("Error deleting comment");
+        setComments(comments.filter((c) => c._id !== comment?._id));
       }
+      // else {
+      //   console.error("Error deleting comment");
+      // }
     } catch (error) {
       console.error("Error deleting comment:", error);
     }
     handleCloseMenu();
+  };
+
+  const handleClickOpen = () => {
+    setOpen1(true);
+  };
+
+  const handleClose = () => {
+    setOpen1(false);
+  };
+
+  const handleSave = async (id) => {
+    if (editedComment.trim()) {
+      try {
+        await handleEditComment({ ...comment, text: editedComment, _id: id });
+        handleClose();
+      } catch (error) {
+        toast.error("Failed to update comment.");
+      }
+    } else {
+      toast.error("Comment cannot be empty.");
+    }
   };
 
   if (!blog) return <Typography>Loading...</Typography>;
@@ -307,13 +369,39 @@ const BlogDetail = () => {
                             justifyContent: "flex-end",
                           }}
                         >
-                          {/* <IconButton
-                          onClick={(event) =>
-                            handleCommentMenuClick(event, comment)
-                          }
-                        >
-                          <EditIcon />
-                        </IconButton> */}
+                          <>
+                            <IconButton onClick={handleClickOpen}>
+                              <EditIcon />
+                            </IconButton>
+                            <Dialog open={open1} onClose={handleClose}>
+                              <DialogTitle>Edit Comment</DialogTitle>
+                              <DialogContent>
+                                <TextField
+                                  autoFocus
+                                  margin="dense"
+                                  label="Comment"
+                                  type="text"
+                                  fullWidth
+                                  variant="outlined"
+                                  value={editedComment}
+                                  onChange={(e) =>
+                                    setEditedComment(e.target.value)
+                                  }
+                                />
+                              </DialogContent>
+                              <DialogActions>
+                                <Button onClick={handleClose} color="primary">
+                                  Cancel
+                                </Button>
+                                <Button
+                                  onClick={() => handleSave(comment._id)}
+                                  color="primary"
+                                >
+                                  Save
+                                </Button>
+                              </DialogActions>
+                            </Dialog>
+                          </>
                           <IconButton
                             onClick={() => handleDeleteComment(comment)}
                           >
