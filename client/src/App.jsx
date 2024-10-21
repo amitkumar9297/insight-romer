@@ -12,6 +12,8 @@ import EditPost from "./pages/EditPost";
 import About from "./pages/About";
 import Services from "./pages/Services";
 import News from "./pages/discover/News";
+import Food from "./pages/discover/Food";
+import MealDetail from "./pages/discover/components/food/MealDetail";
 
 function App() {
   return (
@@ -31,6 +33,8 @@ function App() {
             <Route path="/profile" element={<Profile />} />
 
             <Route path="/news" element={<News />} />
+            <Route path="/food" element={<Food />} />
+            <Route path="/meal/:idMeal" element={<MealDetail />} />
           </Routes>
         </Router>
       </Provider>

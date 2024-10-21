@@ -45,13 +45,16 @@ const Login = () => {
   const onSubmit = async (data) => {
     console.log(data);
     try {
-      const response = await fetch(`http://localhost:8000/api/v1/user/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json", // Ensure Content-Type is set
-        },
-        body: JSON.stringify(data),
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_BASE_URL}/user/login`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json", // Ensure Content-Type is set
+          },
+          body: JSON.stringify(data),
+        }
+      );
       const fullResponse = await response.json();
       console.log(fullResponse);
       if (fullResponse?.token) {

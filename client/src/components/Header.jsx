@@ -86,8 +86,11 @@ const Header = () => {
   const open = Boolean(anchorEl);
   const [anchorE2, setAnchorE2] = useState(null);
   const open2 = Boolean(anchorE2);
+  const [anchorElDiscover, setAnchorElDiscover] = useState(null);
+  // const [anchorElProfile, setAnchorElProfile] = useState(null);
+
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const handleMenuClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -97,12 +100,20 @@ const Header = () => {
     setAnchorEl(null);
   };
 
+  const handleDiscoverClick = (event) => {
+    setAnchorElDiscover(event.currentTarget);
+  };
+
+  const handleDiscoverClose = () => {
+    setAnchorElDiscover(null);
+  };
+
   // useEffect(() => {
   //   const token = localStorage.getItem("token");
 
   //   const fetchUser = async () => {
   //     try {
-  //       const response = await fetch(`http://localhost:8000/api/v1/user/user`, {
+  //       const response = await fetch(`${import.meta.env.VITE_BASE_URL}/user/user`, {
   //         method: "GET",
   //         headers: {
   //           "Content-Type": "application/json",
@@ -208,6 +219,23 @@ const Header = () => {
                 </>
               )}
               <MenuItem
+                // margin={0}
+                // padding={0}
+                // variant="text"
+                onMouseEnter={handleDiscoverClick}
+                onMouseLeave={handleDiscoverClose}
+              >
+                {"Discover" + "  >"}
+                <Menu
+                  anchorEl={anchorElDiscover}
+                  open={Boolean(anchorElDiscover)}
+                  onClose={handleDiscoverClose}
+                >
+                  <MenuItem onClick={() => navigate("/news")}>News</MenuItem>
+                  <MenuItem onClick={() => navigate("/food")}>Food</MenuItem>
+                </Menu>
+              </MenuItem>
+              <MenuItem
                 onClick={() => {
                   handleMenuClose();
                   navigate("/aboutus");
@@ -239,6 +267,21 @@ const Header = () => {
           <DesktopMenu>
             <StyledButton variant="text" onClick={() => navigate("/")}>
               Home
+            </StyledButton>
+            <StyledButton
+              variant="text"
+              onMouseEnter={handleDiscoverClick}
+              onMouseLeave={handleDiscoverClose}
+            >
+              {"Discover" + "  >"}
+              <Menu
+                anchorEl={anchorElDiscover}
+                open={Boolean(anchorElDiscover)}
+                onClose={handleDiscoverClose}
+              >
+                <MenuItem onClick={() => navigate("/news")}>News</MenuItem>
+                <MenuItem onClick={() => navigate("/food")}>Food</MenuItem>
+              </Menu>
             </StyledButton>
             <StyledButton variant="text" onClick={() => navigate("/aboutus")}>
               About

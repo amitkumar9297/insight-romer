@@ -24,7 +24,7 @@ const CreatePost = () => {
       tags: "",
     };
     const response = await fetch(
-      "http://localhost:8000/api/v1/blog/create-blog",
+      `${import.meta.env.VITE_BASE_URL}/blog/create-blog`,
       {
         method: "POST",
         headers: {

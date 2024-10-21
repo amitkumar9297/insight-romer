@@ -11,7 +11,7 @@ const Home = () => {
     const fetchBlogs = async () => {
       try {
         const response = await fetch(
-          `http://localhost:8000/api/v1/blog/all-blog`
+          `${import.meta.env.VITE_BASE_URL}/blog/all-blog`
         ); // Adjust API endpoint as needed
         const data = await response.json();
         setBlogs(data?.blogs);

@@ -20,7 +20,7 @@ const EditPost = () => {
     const fetchBlog = async () => {
       try {
         const response = await fetch(
-          `http://localhost:8000/api/v1/blog/get-blog/${id}`
+          `${import.meta.env.VITE_BASE_URL}/blog/get-blog/${id}`
         ); // Adjust API endpoint as needed
         const data = await response.json();
         setTitle(data?.blog.title);
@@ -46,7 +46,7 @@ const EditPost = () => {
       tags: "",
     };
     const response = await fetch(
-      `http://localhost:8000/api/v1/blog/update-blog/${id}`,
+      `${import.meta.env.VITE_BASE_URL}/blog/update-blog/${id}`,
       {
         method: "PUT",
         headers: {

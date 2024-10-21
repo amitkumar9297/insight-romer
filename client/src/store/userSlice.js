@@ -5,13 +5,16 @@ export const fetchUser = createAsyncThunk(
   async (_, thunkAPI) => {
     const token = localStorage.getItem("token");
     try {
-      const response = await fetch("http://localhost:8000/api/v1/user/user", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_BASE_URL}/user/user`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       if (!response.ok) throw new Error("Failed to fetch");
       const data = await response.json();
       if (data?._id) {
