@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import NewsCard from "./components/NewsCard";
-import { Stack, CircularProgress, Typography } from "@mui/material";
+import { Stack, CircularProgress, Typography, Skeleton } from "@mui/material";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Slider from "react-slick"; // Import React Slick
@@ -8,7 +8,7 @@ import Slider from "react-slick"; // Import React Slick
 const News = () => {
   const [news, setNews] = useState([]);
   const [carouselNews, setCarouselNews] = useState([]); // State for carousel news
-  const [page, setPage] = useState(1); // Track the current page for pagination
+  const [page, setPage] = useState(2); // Track the current page for pagination
   const [loading, setLoading] = useState(false); // Manage loading state
   const [hasMore, setHasMore] = useState(true); // Track if more data is available
 
@@ -16,11 +16,9 @@ const News = () => {
   const fetchCarouselNews = useCallback(async () => {
     try {
       const response = await fetch(
-        `${
-          import.meta.env.VITE_NEWS_BASE_URL
-        }/everything?q=trending&pageSize=5&sortBy=popularity&apiKey=${
+        `${import.meta.env.VITE_NEWS_BASE_URL}/search?api-key=${
           import.meta.env.VITE_NEWS_API_KEY
-        }`
+        }&page-size=10&order-by=newest&show-fields=thumbnail`
       );
 
       if (!response.ok) {
@@ -28,7 +26,7 @@ const News = () => {
       }
 
       const data = await response.json();
-      setCarouselNews(data.articles); // Set carousel news
+      setCarouselNews(data?.response?.results); // Set carousel news
     } catch (error) {
       console.error("Error fetching carousel news:", error);
     }
@@ -39,11 +37,9 @@ const News = () => {
     try {
       setLoading(true);
       const response = await fetch(
-        `${
-          import.meta.env.VITE_NEWS_BASE_URL
-        }/top-headlines?country=us&page=${page}&pageSize=10&apiKey=${
+        `${import.meta.env.VITE_NEWS_BASE_URL}/search?api-key=${
           import.meta.env.VITE_NEWS_API_KEY
-        }`
+        }&page=${page}&page-size=10&order-by=newest&show-fields=thumbnail,trailText`
       );
 
       if (!response.ok) {
@@ -51,8 +47,9 @@ const News = () => {
       }
 
       const data = await response.json();
-      setNews((prevNews) => [...prevNews, ...data.articles]);
-      setHasMore(data.articles.length > 0); // Check if there are more articles
+
+      setNews((prevNews) => [...prevNews, ...data?.response?.results]);
+      setHasMore(data?.response?.results?.length > 0); // Check if there are more articles
     } catch (error) {
       console.error("Error fetching news:", error);
     } finally {
@@ -101,44 +98,47 @@ const News = () => {
         minWidth={"60%"}
         maxWidth="60%"
         margin="auto"
-        Maxheight="600px"
+        maxHeight="600px"
         overflow="hidden"
         marginY={"2rem"}
       >
-        <Slider {...sliderSettings}>
-          {carouselNews.map((article, index) => (
-            <div key={index} style={{ position: "relative" }}>
-              <img
-                src={article.urlToImage}
-                alt={article.title}
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
-                  borderRadius: "8px",
-                  boxShadow: "0 4px 10px rgba(0, 0, 0, 0.2)",
-                }}
-              />
-              <Typography
-                variant="h6"
-                style={{
-                  position: "absolute",
-                  bottom: "10px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "rgba(0, 0, 0, 0.5)",
-                  color: "#fff",
-                  padding: "5px 10px",
-                  borderRadius: "5px",
-                  textAlign: "center",
-                  width: "90%",
-                }}
-              >
-                {article?.title}
-              </Typography>
-            </div>
-          ))}
-        </Slider>
+        {loading ? (
+          <Skeleton variant="rectangular" width="100%" height="400px" />
+        ) : (
+          <Slider {...sliderSettings}>
+            {carouselNews.map((article, index) => (
+              <div key={index} style={{ position: "relative" }}>
+                <img
+                  src={article?.fields?.thumbnail}
+                  alt={article?.webTitle}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                    borderRadius: "8px",
+                    boxShadow: "0 4px 10px rgba(0, 0, 0, 0.2)",
+                  }}
+                />
+                <Typography
+                  variant="h6"
+                  style={{
+                    bottom: "10px",
+                    backgroundColor: "rgba(0, 0, 0, 0.5)",
+                    color: "#fff",
+                    padding: "5px 10px",
+                    borderRadius: "5px",
+                    textAlign: "center",
+                    width: "97%",
+                    wordWrap: "break-word",
+                    fontSize: "0.6rem",
+                  }}
+                >
+                  {article?.webTitle}
+                </Typography>
+              </div>
+            ))}
+          </Slider>
+        )}
       </Stack>
 
       <Stack
@@ -149,17 +149,28 @@ const News = () => {
         margin={"auto"}
         spacing={2}
       >
-        {news.map((article, index) => {
-          if (index === news.length - 1) {
-            return (
-              <div ref={lastNewsCardRef} key={index}>
-                <NewsCard article={article} />
-              </div>
-            );
-          } else {
-            return <NewsCard key={index} article={article} />;
-          }
-        })}
+        {news.length === 0 && loading
+          ? // Render skeletons for news cards while loading
+            Array.from({ length: 5 }).map((_, index) => (
+              <Skeleton
+                key={index}
+                variant="rectangular"
+                width="100%"
+                height="150px"
+                sx={{ marginBottom: 2 }}
+              />
+            ))
+          : news.map((article, index) => {
+              if (index === news.length - 1) {
+                return (
+                  <div ref={lastNewsCardRef} key={index}>
+                    <NewsCard article={article} />
+                  </div>
+                );
+              } else {
+                return <NewsCard key={index} article={article} />;
+              }
+            })}
         {loading && <CircularProgress />}
         {!hasMore && (
           <Typography variant="h6" color="textSecondary">

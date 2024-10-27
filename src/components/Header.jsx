@@ -222,7 +222,7 @@ const Header = () => {
                 // margin={0}
                 // padding={0}
                 // variant="text"
-                onMouseEnter={handleDiscoverClick}
+                onMouseOver={handleDiscoverClick}
                 onMouseLeave={handleDiscoverClose}
               >
                 {"Discover" + "  >"}

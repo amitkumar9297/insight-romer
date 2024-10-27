@@ -1,5 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Container, Grid, Typography } from "@mui/material";
+import {
+  Card,
+  CardContent,
+  Container,
+  Grid,
+  Skeleton,
+  Typography,
+} from "@mui/material";
 import BlogCard from "./components/BlogCard";
 import { useNavigate } from "react-router-dom"; // For navigation
 
@@ -37,9 +44,44 @@ const Home = () => {
             </Grid>
           ))
         ) : (
-          <Typography variant="h6" align="center">
-            No blogs available
-          </Typography>
+          <Grid
+            marginLeft={0}
+            container
+            spacing={2}
+            justifyContent={"center"}
+            margin={"auto"}
+            marginTop={"3rem"}
+          >
+            {Array.from({ length: 10 }).map((_, index) => (
+              <Grid item key={index} xs={12} sm={6} md={4}>
+                <Card
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    minWidth: "100%",
+                    maxWidth: "345px",
+                    margin: 2,
+                    boxShadow: 3,
+                  }}
+                >
+                  <Skeleton variant="rectangular" width="100%" height={140} />
+                  <CardContent>
+                    <Skeleton
+                      variant="text"
+                      width="80%"
+                      sx={{ marginBottom: 1 }}
+                    />
+                    <Skeleton
+                      variant="text"
+                      width="60%"
+                      sx={{ marginBottom: 1 }}
+                    />
+                    <Skeleton variant="text" width="90%" />
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
         )}
       </Grid>
     </Container>

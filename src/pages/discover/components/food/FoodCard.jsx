@@ -1,9 +1,37 @@
 // src/FoodCard.jsx
 import React from "react";
-import { Card, CardMedia, CardContent, Typography } from "@mui/material";
+import {
+  Card,
+  CardMedia,
+  CardContent,
+  Typography,
+  Skeleton,
+} from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
 const FoodCard = ({ meal }) => {
+  if (!meal) {
+    return (
+      <Card
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          minWidth: "100%",
+          maxWidth: "345px",
+          margin: 2,
+          boxShadow: 3,
+        }}
+      >
+        <Skeleton variant="rectangular" width="100%" height={140} />
+        <CardContent>
+          <Skeleton variant="text" width="80%" sx={{ marginBottom: 1 }} />
+          <Skeleton variant="text" width="60%" sx={{ marginBottom: 1 }} />
+          <Skeleton variant="text" width="90%" />
+        </CardContent>
+      </Card>
+    );
+  }
+
   const navigate = useNavigate();
 
   const handleClick = () => {

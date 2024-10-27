@@ -4,14 +4,36 @@ import {
   CardMedia,
   CardContent,
   Typography,
-  Grid,
   Box,
   Stack,
   IconButton,
+  Skeleton,
 } from "@mui/material";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 
 const NewsCard = ({ article }) => {
+  if (!article) {
+    // Display skeleton when article is not present
+    return (
+      <Card
+        sx={{
+          display: "flex",
+          minWidth: "100%",
+          maxWidth: "100%",
+          margin: 2,
+          boxShadow: 3,
+        }}
+      >
+        <Skeleton variant="rectangular" width={300} height={150} />
+        <CardContent sx={{ flex: 1 }}>
+          <Skeleton variant="text" width="60%" />
+          <Skeleton variant="text" width="80%" />
+          <Skeleton variant="text" width="90%" />
+        </CardContent>
+      </Card>
+    );
+  }
+
   const { source, title, description, url, urlToImage, publishedAt } = article;
 
   return (
@@ -31,8 +53,8 @@ const NewsCard = ({ article }) => {
           <CardMedia
             component="img"
             sx={{ width: 300 }}
-            image={urlToImage}
-            alt={title}
+            image={article?.fields?.thumbnail}
+            alt={article?.webTitle}
           />
           <Typography
             variant="caption"
@@ -46,36 +68,26 @@ const NewsCard = ({ article }) => {
               borderRadius: 1,
             }}
           >
-            {source?.name}
+            {"guardians"}
           </Typography>
         </Box>
 
         <CardContent sx={{ flex: 1 }}>
           <Typography variant="caption" color="text.secondary">
-            {new Date(publishedAt).toLocaleDateString()}
+            {new Date(article?.webPublicationDate).toLocaleDateString()}
           </Typography>
-          <Typography variant="h6" gutterBottom>
-            {title}
+          <Typography variant="h6">{article?.webTitle}</Typography>
+          <Typography variant="body2" color="text.secondary">
+            {article?.fields?.trailText}
           </Typography>
-          <Typography
-            variant="body2"
-            color="text.secondary"
-            sx={{ flex: 1, mr: 1, textAlign: "left" }}
+          <IconButton
+            aria-label="view"
+            onClick={() => window.open(article?.webUrl, "_blank")}
+            sx={{ position: "absolute", bottom: 5, right: 5 }}
           >
-            {description}
-          </Typography>
+            <OpenInNewIcon />
+          </IconButton>
         </CardContent>
-        <IconButton
-          size="small"
-          color="primary"
-          sx={{ margin: "1rem" }}
-          onClick={(e) => {
-            e.stopPropagation(); // Prevents the card click from triggering
-            window.open(url, "_blank");
-          }}
-        >
-          <OpenInNewIcon />
-        </IconButton>
       </Card>
     </Stack>
   );
